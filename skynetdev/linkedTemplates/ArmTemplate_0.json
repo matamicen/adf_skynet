@@ -998,15 +998,6 @@
 								"environment": "dev"
 							}
 						}
-					},
-					{
-						"name": "Wait4",
-						"type": "Wait",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"waitTimeInSeconds": 1
-						}
 					}
 				],
 				"policy": {
