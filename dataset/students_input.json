@@ -1,0 +1,50 @@
+{
+	"name": "students_input",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "BlobStorage",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"environment": {
+					"value": "@dataset().environment",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"environment": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Hoja 1",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Student.xlsx",
+				"container": "input"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "StudentId",
+				"type": "String"
+			},
+			{
+				"name": "Name",
+				"type": "String"
+			},
+			{
+				"name": "Department",
+				"type": "String"
+			},
+			{
+				"name": "Age",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

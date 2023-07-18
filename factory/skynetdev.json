@@ -1,0 +1,17 @@
+{
+	"name": "skynetdev",
+	"properties": {
+		"globalParameters": {
+			"global_environment": {
+				"type": "string",
+				"value": "dev"
+			}
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "f5c3341c-aad3-4250-ac6f-041f64f66d8b",
+		"tenantId": "26c2ce68-82a1-455e-981c-ef9bd4dffc2f"
+	}
+}

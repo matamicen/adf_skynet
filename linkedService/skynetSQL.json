@@ -1,0 +1,29 @@
+{
+	"name": "skynetSQL",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"environment": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "skynet_keyvault",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"environment": {
+							"value": "@linkedService().environment",
+							"type": "Expression"
+						}
+					}
+				},
+				"secretName": "databaseConnectionString"
+			}
+		}
+	}
+}
