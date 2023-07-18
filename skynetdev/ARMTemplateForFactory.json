@@ -1,0 +1,1355 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "skynetdev"
+		},
+		"AzureFunction1_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'AzureFunction1'"
+		},
+		"skynetFunctionApp_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'skynetFunctionApp'"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{concat('https://skynet',linkedService().environment, '.dfs.core.windows.net/')\n}"
+		},
+		"AzureFunction1_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://insertusertest.azurewebsites.net"
+		},
+		"BlobStorage_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "blobstorageconnection"
+		},
+		"skynetFunctionApp_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "@{concat('https://theskynet',linkedService().environment,'.azurewebsites.net/')\n}"
+		},
+		"skynetSQL_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "databaseConnectionString"
+		},
+		"skynet_keyvault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "@{concat('https://skynet',linkedService().environment, '.vault.azure.net/')\n}"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/dimensionCustomer')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DimensionCustomer",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DimensionCustomer",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"DimCustomer": {},
+									"DimCustomerOut": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-07-18T14:51:21Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DimensionCustomer')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dimensionProduct')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DimensionProduct",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DimensionProduct",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"DimProductIn": {},
+									"domProductOut": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-07-18T14:51:22Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DimensionProduct')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipe_DataFlow1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CSVtoPartitionParquetSalesFact",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"salesFact": {
+										"environment": "dev"
+									},
+									"sink1": {
+										"environment": "dev"
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-07-14T03:55:56Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "upsert",
+								"upsertSettings": {
+									"useTempDB": true,
+									"keys": [
+										"StudentId"
+									]
+								},
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "StudentId",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "StudentId",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "Name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Name",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Department",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Department",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "Age",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "Age",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "students_input",
+								"type": "DatasetReference",
+								"parameters": {
+									"environment": {
+										"value": "@pipeline().globalParameters.global_environment",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "students_sql_table",
+								"type": "DatasetReference",
+								"parameters": {
+									"environment": {
+										"value": "@pipeline().globalParameters.global_environment",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "loginURL",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://skynet',pipeline().globalParameters.global_environment,'.vault.azure.net/secrets/loginUrl?api-version=',pipeline().parameters.api_version) ",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "loginUser",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://skynet',pipeline().globalParameters.global_environment,'.vault.azure.net/secrets/loginUser?api-version=',pipeline().parameters.api_version) ",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "loginPassword",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Copy data1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@concat('https://skynet',pipeline().globalParameters.global_environment,'.vault.azure.net/secrets/loginPassword?api-version=',pipeline().parameters.api_version) ",
+								"type": "Expression"
+							},
+							"method": "GET",
+							"headers": {},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://vault.azure.net"
+							}
+						}
+					},
+					{
+						"name": "Login",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "loginURL",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "loginUser",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "loginPassword",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"url": {
+								"value": "@activity('loginURL').output.value",
+								"type": "Expression"
+							},
+							"method": "POST",
+							"headers": {
+								"Content-Type": "application/json"
+							},
+							"body": {
+								"value": "{\n    \"email\" : \"@{activity('loginUser').output.value}\",\n    \"password\" : \"@{activity('loginPassword').output.value}\"\n    }\n\n\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "If Condition1",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Login",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@contains(activity('Login').output,'token')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Wait2",
+									"type": "Wait",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"waitTimeInSeconds": 1
+									}
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "Call Api Users",
+									"type": "WebActivity",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"url": "https://reqres.in/api/users?page=2",
+										"method": "GET",
+										"headers": {}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Wait3",
+						"type": "Wait",
+						"dependsOn": [
+							{
+								"activity": "Login",
+								"dependencyConditions": [
+									"Failed"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "If Condition1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Call Api Users').output.data",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Insert one by one SP",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[InsertStudent]",
+										"storedProcedureParameters": {
+											"Age": {
+												"value": "12",
+												"type": "Int32"
+											},
+											"Department": {
+												"value": {
+													"value": "@item().first_name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"Name": {
+												"value": {
+													"value": "@item().last_name",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"StudentId": {
+												"value": {
+													"value": "@item().id",
+													"type": "Expression"
+												},
+												"type": "Int32"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "skynetSQL",
+										"type": "LinkedServiceReference",
+										"parameters": {
+											"environment": {
+												"value": "@pipeline().globalParameters.global_environment",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Azure Function1",
+						"type": "AzureFunctionActivity",
+						"dependsOn": [
+							{
+								"activity": "If Condition1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"functionName": "insert_one_row",
+							"method": "POST",
+							"headers": {},
+							"body": {
+								"name": "pepitoooo"
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "skynetFunctionApp",
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"environment": "dev"
+							}
+						}
+					},
+					{
+						"name": "Wait4",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"api_version": {
+						"type": "String",
+						"defaultValue": "7.4"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-07-13T18:33:15Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/students_input')]",
+				"[concat(variables('factoryId'), '/datasets/students_sql_table')]",
+				"[concat(variables('factoryId'), '/linkedServices/skynetFunctionApp')]",
+				"[concat(variables('factoryId'), '/linkedServices/skynetSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DimCustomer')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "BlobStorage",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"environment": "dev"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "customer.csv",
+						"folderPath": "sales_star_schema",
+						"container": "input"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CustomerID",
+						"type": "String"
+					},
+					{
+						"name": "CustomerName",
+						"type": "String"
+					},
+					{
+						"name": "City",
+						"type": "String"
+					},
+					{
+						"name": "State",
+						"type": "String"
+					},
+					{
+						"name": "Country",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DimCustomerOut')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"environment": "dev"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "sales_star_schema/DimCustomer",
+						"fileSystem": "output"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DimProduct')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "BlobStorage",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"environment": "dev"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "product.csv",
+						"folderPath": "sales_star_schema",
+						"container": "input"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "ProductID",
+						"type": "String"
+					},
+					{
+						"name": "ProductName",
+						"type": "String"
+					},
+					{
+						"name": "Category",
+						"type": "String"
+					},
+					{
+						"name": "Subcategory",
+						"type": "String"
+					},
+					{
+						"name": "Brand",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DimProductOut')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"environment": "dev"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "sales_star_schema/DimProduct",
+						"fileSystem": "output"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sales_fact_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "BlobStorage",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"environment": {
+							"value": "@dataset().environment",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"environment": {
+						"type": "string",
+						"defaultValue": "dev"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "fact_sales.csv",
+						"folderPath": "sales_star_schema",
+						"container": "input"
+					},
+					"columnDelimiter": ",",
+					"rowDelimiter": "\n",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "OrderID",
+						"type": "String"
+					},
+					{
+						"name": "Date",
+						"type": "String"
+					},
+					{
+						"name": "ProductID",
+						"type": "String"
+					},
+					{
+						"name": "CustomerID",
+						"type": "String"
+					},
+					{
+						"name": "Quantity",
+						"type": "String"
+					},
+					{
+						"name": "TotalSales",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/sales_fact_table_out')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"environment": "dev"
+					}
+				},
+				"parameters": {
+					"environment": {
+						"type": "string",
+						"defaultValue": "dev"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "sales_star_schema/sales_fact_table",
+						"fileSystem": "output"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/students_input')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "BlobStorage",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"environment": {
+							"value": "@dataset().environment",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"environment": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Hoja 1",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Student.xlsx",
+						"container": "input"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "StudentId",
+						"type": "String"
+					},
+					{
+						"name": "Name",
+						"type": "String"
+					},
+					{
+						"name": "Department",
+						"type": "String"
+					},
+					{
+						"name": "Age",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/BlobStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/students_sql_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "skynetSQL",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"environment": {
+							"value": "@dataset().environment",
+							"type": "Expression"
+						}
+					}
+				},
+				"parameters": {
+					"environment": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "StudentId",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Name",
+						"type": "varchar"
+					},
+					{
+						"name": "Department",
+						"type": "varchar"
+					},
+					{
+						"name": "Age",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "student"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/skynetSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"environment": {
+						"type": "string",
+						"defaultValue": "dev"
+					}
+				},
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureFunction1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "[parameters('AzureFunction1_properties_typeProperties_functionAppUrl')]",
+					"functionKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureFunction1_functionKey')]"
+					},
+					"authentication": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/BlobStorage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"environment": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "skynet_keyvault",
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"environment": {
+									"value": "@linkedService().environment",
+									"type": "Expression"
+								}
+							}
+						},
+						"secretName": "[parameters('BlobStorage_properties_typeProperties_connectionString_secretName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/skynet_keyvault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/skynetFunctionApp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"environment": {
+						"type": "string",
+						"defaultValue": "dev"
+					}
+				},
+				"annotations": [],
+				"type": "AzureFunction",
+				"typeProperties": {
+					"functionAppUrl": "[parameters('skynetFunctionApp_properties_typeProperties_functionAppUrl')]",
+					"functionKey": {
+						"type": "SecureString",
+						"value": "[parameters('skynetFunctionApp_functionKey')]"
+					},
+					"authentication": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/skynetSQL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"environment": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "skynet_keyvault",
+							"type": "LinkedServiceReference",
+							"parameters": {
+								"environment": {
+									"value": "@linkedService().environment",
+									"type": "Expression"
+								}
+							}
+						},
+						"secretName": "[parameters('skynetSQL_properties_typeProperties_connectionString_secretName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/skynet_keyvault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/skynet_keyvault')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"parameters": {
+					"environment": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('skynet_keyvault_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DimensionCustomer')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DimCustomer",
+								"type": "DatasetReference"
+							},
+							"name": "DimCustomer"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DimCustomerOut",
+								"type": "DatasetReference"
+							},
+							"name": "DimCustomerOut"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          CustomerID as integer '000',",
+						"          CustomerName as string,",
+						"          City as string,",
+						"          State as string,",
+						"          Country as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> DimCustomer",
+						"DimCustomer sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> DimCustomerOut"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DimCustomer')]",
+				"[concat(variables('factoryId'), '/datasets/DimCustomerOut')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DimensionProduct')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DimProduct",
+								"type": "DatasetReference"
+							},
+							"name": "DimProductIn"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DimProductOut",
+								"type": "DatasetReference"
+							},
+							"name": "domProductOut"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          ProductID as integer '000',",
+						"          ProductName as string,",
+						"          Category as string,",
+						"          Subcategory as string,",
+						"          Brand as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> DimProductIn",
+						"DimProductIn sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> domProductOut"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DimProduct')]",
+				"[concat(variables('factoryId'), '/datasets/DimProductOut')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "sales_fact_table",
+								"type": "DatasetReference"
+							},
+							"name": "salesFact",
+							"description": "sales fact table"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "sales_fact_table_out",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          OrderID as short,",
+						"          Date as date,",
+						"          ProductID as short,",
+						"          CustomerID as short,",
+						"          Quantity as short,",
+						"          TotalSales as double",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> salesFact",
+						"salesFact derive(year = year(Date),",
+						"          month = month(Date),",
+						"          day = toInteger(dropLeft(toString(Date),8))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('key',",
+						"          0,",
+						"          year,",
+						"          month,",
+						"          day",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/sales_fact_table')]",
+				"[concat(variables('factoryId'), '/datasets/sales_fact_table_out')]"
+			]
+		}
+	]
+}

@@ -1,0 +1,118 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "skynetdev"
+		},
+		"AzureFunction1_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'AzureFunction1'"
+		},
+		"skynetFunctionApp_functionKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'functionKey' of 'skynetFunctionApp'"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{concat('https://skynet',linkedService().environment, '.dfs.core.windows.net/')\n}"
+		},
+		"AzureFunction1_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "https://insertusertest.azurewebsites.net"
+		},
+		"BlobStorage_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "blobstorageconnection"
+		},
+		"skynetFunctionApp_properties_typeProperties_functionAppUrl": {
+			"type": "string",
+			"defaultValue": "@{concat('https://theskynet',linkedService().environment,'.azurewebsites.net/')\n}"
+		},
+		"skynetSQL_properties_typeProperties_connectionString_secretName": {
+			"type": "string",
+			"defaultValue": "databaseConnectionString"
+		},
+		"skynet_keyvault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "@{concat('https://skynet',linkedService().environment, '.vault.azure.net/')\n}"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "skynetdev_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureFunction1_functionKey": {
+						"value": "[parameters('AzureFunction1_functionKey')]"
+					},
+					"skynetFunctionApp_functionKey": {
+						"value": "[parameters('skynetFunctionApp_functionKey')]"
+					},
+					"AzureDataLakeStorage1_properties_typeProperties_url": {
+						"value": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]"
+					},
+					"AzureFunction1_properties_typeProperties_functionAppUrl": {
+						"value": "[parameters('AzureFunction1_properties_typeProperties_functionAppUrl')]"
+					},
+					"skynetFunctionApp_properties_typeProperties_functionAppUrl": {
+						"value": "[parameters('skynetFunctionApp_properties_typeProperties_functionAppUrl')]"
+					},
+					"skynet_keyvault_properties_typeProperties_baseUrl": {
+						"value": "[parameters('skynet_keyvault_properties_typeProperties_baseUrl')]"
+					},
+					"BlobStorage_properties_typeProperties_connectionString_secretName": {
+						"value": "[parameters('BlobStorage_properties_typeProperties_connectionString_secretName')]"
+					},
+					"skynetSQL_properties_typeProperties_connectionString_secretName": {
+						"value": "[parameters('skynetSQL_properties_typeProperties_connectionString_secretName')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "skynetdev_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'skynetdev_ArmTemplate_0')]"
+			]
+		}
+	]
+}

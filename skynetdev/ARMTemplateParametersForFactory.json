@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "skynetdev"
+		},
+		"AzureFunction1_functionKey": {
+			"value": ""
+		},
+		"skynetFunctionApp_functionKey": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "@{concat('https://skynet',linkedService().environment, '.dfs.core.windows.net/')\n}"
+		},
+		"AzureFunction1_properties_typeProperties_functionAppUrl": {
+			"value": "https://insertusertest.azurewebsites.net"
+		},
+		"BlobStorage_properties_typeProperties_connectionString_secretName": {
+			"value": "blobstorageconnection"
+		},
+		"skynetFunctionApp_properties_typeProperties_functionAppUrl": {
+			"value": "@{concat('https://theskynet',linkedService().environment,'.azurewebsites.net/')\n}"
+		},
+		"skynetSQL_properties_typeProperties_connectionString_secretName": {
+			"value": "databaseConnectionString"
+		},
+		"skynet_keyvault_properties_typeProperties_baseUrl": {
+			"value": "@{concat('https://skynet',linkedService().environment, '.vault.azure.net/')\n}"
+		}
+	}
+}
