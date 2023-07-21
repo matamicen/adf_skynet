@@ -39,6 +39,10 @@
 			"type": "string",
 			"defaultValue": "@{concat('https://skynet',linkedService().environment, '.vault.azure.net/')\n}"
 		},
+		"default_properties_global_environment_value": {
+			"type": "string",
+			"defaultValue": "dev"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -71,6 +75,9 @@
 					},
 					"skynetFunctionApp_functionKey": {
 						"value": "[parameters('skynetFunctionApp_functionKey')]"
+					},
+					"default_properties_global_environment_value": {
+						"value": "[parameters('default_properties_global_environment_value')]"
 					},
 					"AzureDataLakeStorage1_properties_typeProperties_url": {
 						"value": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]"

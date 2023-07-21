@@ -38,6 +38,10 @@
 		"skynet_keyvault_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "@{concat('https://skynet',linkedService().environment, '.vault.azure.net/')\n}"
+		},
+		"default_properties_global_environment_value": {
+			"type": "string",
+			"defaultValue": "dev"
 		}
 	},
 	"variables": {
@@ -141,7 +145,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipe_DataFlow1')]",
+			"name": "[concat(parameters('factoryName'), '/Fact_tabla_partition')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -193,7 +197,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"name": "[concat(parameters('factoryName'), '/Pipeline_Global')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1341,6 +1345,18 @@
 				"[concat(variables('factoryId'), '/datasets/sales_fact_table')]",
 				"[concat(variables('factoryId'), '/datasets/sales_fact_table_out')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/default')]",
+			"type": "Microsoft.DataFactory/factories/globalparameters",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"global_environment": {
+					"type": "string",
+					"value": "[parameters('default_properties_global_environment_value')]"
+				}
+			},
+			"dependsOn": []
 		}
 	]
 }

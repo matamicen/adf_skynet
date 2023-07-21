@@ -29,6 +29,9 @@
 		"skynet_keyvault_properties_typeProperties_baseUrl": {
 			"value": "@{concat('https://skynet',linkedService().environment, '.vault.azure.net/')\n}"
 		},
+		"default_properties_global_environment_value": {
+			"value": "dev"
+		},
 		"containerUri": {
 			"value": ""
 		},
